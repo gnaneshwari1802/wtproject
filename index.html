@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Crime Registration Portal</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/assets/style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <!-- pdf make cdn's -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/pdfmake.min.js" integrity="sha512-uO6vGk8coV9uDaoMwYUTVO2nQ3XS4MVePe6qVif3PkiYRZ2y+707M4HOdaYPF0jqxhgNenarJ/1RlfRTs37SeA==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/vfs_fonts.min.js" integrity="sha512-VIF8OqBWob/wmCvrcQs27IrQWwgr3g+iA4QQ4hH/YeuYBIoAUluiwr/NX5WQAQgUaVx39hs6l05cEOIGEB+dmA==" crossorigin="anonymous"></script>
+
+    <style type="text/css">
+        /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+        
+        #map {
+            height: 100%;
+        }
+        /* Optional: Makes the sample page fill the window. */
+        
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script>
+        "use strict"
+        var map;
+        var geocoder;
+        function initMap() {
+
+            var myLatlng = {
+                lat: 17.3850,
+                lng: 78.4867,
+            };
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 12,
+                center: myLatlng,
+            }); // Create the initial InfoWindow.
+
+            var infoWindow = new google.maps.InfoWindow({
+                content: "Click the map to plot the crime location",
+                position: myLatlng,
+            });
+            infoWindow.open(map); // Configure the click listener.
+            map.addListener("click", (e) => {
+                clickeventhandler(e, infoWindow);
+            }); 
+            geocoder = new google.maps.Geocoder();
+            var custom_icon;
+            {% for i in mk %}
+                //marking all cases
+                var mylocation={
+                    lat:{{i.crime_lat}},
+                    lng:{{i.crime_long}},
+                };
+                {% if i.name == user %}
+                // lable={{i.case_id}}
+                    addMarker(mylocation,map)
+                {% else %}
+                    customizedaddMarker(mylocation,map)
+                {% endif %}
+            {% endfor %}
+
+            function customizedaddMarker(location, map) {
+                // Add the marker at the clicked location, and add the next-available label
+                // from the array of alphabetical characters.
+                new google.maps.Marker({
+                    position: location,
+                    // label: labels[labelIndex++ % labels.length],
+                    //label: lable,
+                    icon: "/assets/shopping-mall.svg",
+                    map: map,
+                });
+            }
+            function addMarker(location, map) {
+                // Add the marker at the clicked location, and add the next-available label
+                // from the array of alphabetical characters.
+                new google.maps.Marker({
+                    position: location,
+                    // label: labels[labelIndex++ % labels.length],
+                    //label: lable,
+                    map: map,
+                });
+            }
+            /*const input = document.getElementById("form1");
+            const searchBox = new google.maps.places.SearchBox(input);
+            map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+            // Bias the SearchBox results towards current map's viewport.
+            map.addListener("bounds_changed", () => {
+             searchBox.setBounds(map.getBounds());
+            }); */
+            
+        }
+            
+         // Deletes all markers in the array by removing references to them.
+        function deleteMarkers() 
+        {
+            location.reload();
+        }
+
+    </script>
+</head>
+
+<body>
+    <!-- <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Crime Registration Portal</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <a href="{%url 'logout'%}" type="button" class="btn btn-outline-warning" style="position:relative; left:75%">Logout</a>
+    </nav> -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Crime Registration Portal</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                </li>
+                <li class="nav-item">
+                    
+                </li>
+                <li class="nav-item">
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0 mx-3">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Welcome {{user}}!!!! <span class="sr-only">(current)</span></a>
+                    </li>
+                </ul>
+                
+                <input onclick="deleteMarkers();" type="button" class="btn btn-outline-danger mx-2" value="Delete Marker" />
+                <a href="{%url 'logout'%}" type="button" class="btn btn-outline-warning my-2 my-sm-0 mx-2" type="submit">Logout</a>
+            </form>
+        </div>
+    </nav>
+    <div id="map"></div>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAS21iMdKl9RfKz0MVM5LThjAqzUDIoV1E&callback=initMap&libraries=&v=weekly" async></script>
+    <script>
+    </script>
+    <div class="container-fluid" id="bg_id">
+        <form action="#">
+            <h1>Enter Your Complaint Here</h1>
+            <!-- <div class="row">
+                    <input type="checkbox" name="fancy-checkbox" id="fancy-checkbox" />
+                    <label for="fancy-checkbox">Checkbox</label>
+                </div> -->
+
+            <!-- <div class="row">
+                    <input type="radio" name="fancy-radio" id="fancy-radio-1" />
+                    <label for="fancy-radio-1">Radio</label>
+
+                    <input type="radio" name="fancy-radio" id="fancy-radio-2" />
+                    <label for="fancy-radio-2">Radio</label>
+                </div> -->
+
+            <div class="row">
+                <input type="text" name="usr" id="usr" value="{{user}}" disabled />
+                <label for="usr">Name</label>
+            </div>
+            <div class="row">
+                <input type="text" name="case_no" id="case_no" value="{{cid}}" disabled />
+                <label for="case_no">Case_ID</label>
+            </div>
+            <div class="row">
+                <input type="text" name="email_form" id="email_form" value="{{email}}" disabled />
+                <label for="email_form">Email</label>
+            </div>
+            <div class="row">
+                <textarea name="description" id="description" required></textarea>
+                <label for="description">Description</label>
+            </div>
+
+            <button type="button" tabindex="0" onclick="submit_form()">Submit</button>
+        </form>
+    </div>
+    <!-- form submitting script -->
+    
+    <script>
+        let flag = 0;
+        var latitude;
+        var longitude;
+        var json_obj;
+        var name
+        var case_no
+        var email
+        var description
+        var data_obj=new Array(6);
+        var juridiction;
+        let nearest_area;
+        var crime_area;
+        let click=0;
+        function submit_form() {
+
+            click++;
+            var i;
+            name = document.getElementById("usr").value;
+            case_no = document.getElementById("case_no").value;
+            email = document.getElementById("email_form").value;
+            description = document.getElementById("description").value;
+            if(description.length == 0)
+            {
+                swal("Oops!!!","Please fill the description","error");
+            }
+            else
+            {
+                if(flag == 0)
+                {
+                    swal("Please Mark the location first");
+                }
+                else
+                {
+                  reverse_geocode(latitude,longitude);  
+                }
+            }
+            // // Plot only for one time
+
+            // for (i = 0; i < 1; i++) {
+
+            // }
+
+
+        }
+
+        function clickeventhandler(mapsMouseEvent, infoWindow) {
+            if (flag == 0) {
+                // Close the current InfoWindow.
+                infoWindow.close(); // Create a new InfoWindow.
+                console.log(typeof(mapsMouseEvent.latLng))
+                addMarker(mapsMouseEvent.latLng, map); //get the current lat and ;png
+                var case_id = "Your Case had been recorded at this location";
+                infoWindow = new google.maps.InfoWindow({
+                    content: case_id,
+                    position: mapsMouseEvent.latLng,
+                });
+
+                // infoWindow.setContent(
+                //     // JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2), 
+                //     // JSON.stringify(case_id)
+                //     // case_id, 
+                //     JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
+                // );
+                //console.log(JSON.stringify(mapsMouseEvent.latLng.toJSON()));
+                var x = JSON.stringify(mapsMouseEvent.latLng.toJSON());
+                var n = JSON.parse(x);
+                // var m = mapsMouseEvent.latLng.toJSON();
+                // console.log(m);
+               
+                console.log(n.lat);
+                console.log(n.lng);
+                latitude = n.lat;
+                longitude = n.lng;
+                // json_obj = m;
+                console.log(latitude)
+                 //Reverse geocoding code starts
+                /*console.log();
+                console.log("My data had been changed")
+                console.log(nearest_area);
+                console.log(sessionStorage.getItem("neighbourhood"));*/
+                //Reverse geocoding code ends
+                    // upload(lat, long);
+                    // var num = Number(case_id.slice(3, case_id.length)) + 1;
+                    // case_id = case_id.slice(0, 3) + String(num);
+                infoWindow.open(map);
+                swal("Upload Progress!!!", "Pls fill the form ", "info");
+                //upload(name,case_no,email, description, latitude, longitude);
+                flag = 1;
+            }
+        }
+        
+        function addMarker(location, map) {
+            // Add the marker at the clicked location, and add the next-available label
+            // from the array of alphabetical characters.
+            new google.maps.Marker({
+                position: location,
+                // label: labels[labelIndex++ % labels.length],
+                label: "{{cid}}",
+                map: map,
+            });
+        }
+        // ajax script for data_upload
+        
+        function reverse_geocode(lat,longi)
+        {
+            $.ajax({
+            url: 'http://api.positionstack.com/v1/reverse?access_key=611eb58ef21de2a1d61faa10ac3fef77&query='+lat+','+longi,
+            /*data: {
+            access_key: '16ab74722604db05a19bb3946e47df48',
+            query: '51.507822,-0.076702',
+            output: 'xml',
+            limit: 10
+            }*/
+            }).done(function(data) {
+            console.log(data);
+            console.log(data["data"][0]['latitude']);
+            var st=data["data"][0]['neighbourhood'];
+            var area=data["data"][0]['label'];
+            var locality=data["data"][0]['locality'];
+            var district=data["data"][0]['county'];
+            var pin=data["data"][0]['postal_code'];
+            var nm=data["data"][0]['name'];
+            var reg=data["data"][0]['region'];
+            if(st==null || nm==null || reg==null)
+            {
+                store_data(locality,area,locality,district,pin,locality,district);
+            }
+            else
+            {
+                store_data(st,area,locality,district,pin,nm,reg);
+                console.log(st);
+                /*sessionStorage.clear();
+                sessionStorage.setItem("neighbourhood", st);*/
+                //nearest_area=st;
+            }
+            
+            return(st);
+        });
+        }
+        function store_data(jur,ar,lo,di,pi,nm,rg)
+        {
+            if(click!=0)
+            {
+                var i;
+                name = document.getElementById("usr").value;
+                case_no = document.getElementById("case_no").value;
+                email = document.getElementById("email_form").value;
+                description = document.getElementById("description").value;
+                upload(name,case_no,email, description, latitude, longitude,jur,ar,lo,di,pi,nm,rg);
+
+            }
+        }
+        function upload(name, caseid1, email, description, latitude, longitude,jr,ar,lo,di,pi,nm,rg) 
+        {
+
+            console.log("Inside Ajax");
+            console.log(latitude);
+            $.ajax({
+                type: "POST",
+                url: "upload/",
+                data: {
+                    name: name,
+                    cid: caseid1,
+                    email: email,
+                    description: description,
+                    lat: latitude,
+                    long: longitude,
+                    juri:jr,
+                    area:ar,
+                    loca:lo,
+                    dis:di,
+                    pin:pi,
+                    area_name:nm,
+                    region:rg,
+                    // ob: map_obj
+                    // case_id: case_id
+
+                },
+
+                success: function(data) {
+                    swal("Good job!", "Your Upload was Successful and your page will refresh automatically", "success");
+                    window.setTimeout(function() {location.reload();},5000);
+                    
+                },
+                error: function(we) {
+                    console.log("i had been failed");
+                }
+            })
+        }
+    </script>
+    <!-- form submitting script -->
+    <!-- Table area starts -->
+    <div class="container-fluid">
+        <div class="animated_heading my-5">
+            <div class="waviy">
+                <span style="--i:1">S</span>
+                <span style="--i:2">T</span>
+                <span style="--i:3">A</span>
+                <span style="--i:4">T</span>
+                <span style="--i:5">U</span>
+                <span style="--i:6">S</span>
+                <!-- <span style="--i:7">g</span>
+                    <span style="--i:8">.</span> -->
+            </div>
+        </div>
+        <div class="card table-responsive">
+
+            <div class="card-body">
+                <table class="table table-hover">
+
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">CaseID</th>
+                            <th scope="col">Victim Name</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Registration Date</th>
+                            <th scope="col">Closing Date</th>
+                            <th scope="col">Report</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                      
+                        {% for k in pl%}
+                            {% if k.Victim_Name == user%}
+                                <tr>
+                                <th scope="row">{{k.case_no}}</th>
+                                <td>{{k.Victim_Name}}</td>
+                                    {% if k.case_status == clo %}
+                                        <td>{{k.case_status}}</td>
+                                        <td>{{k.reg_date}}</td>
+                                        <td>{{k.closing_date}}</td>
+                                        <td><button type="button" class="btn btn-link" onclick="generatePdf('{{k.case_no}}','{{k.Victim_Name}}','{{k.Findings}}','{{k.Description}}','{{k.closing_date}}','{{k.police_officer_name}}','{{k.police_juridiction}}','{{k.crime_area}}')">Download</button></td>
+                                </td>
+                                    {% else %}
+                                        <td>{{k.case_status}}</td>
+                                        <td>{{k.reg_date}}</td>
+                                        <td>----</td>
+                                        <td>----</td>
+                                    {% endif %}
+
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+    <!-- Table area ends -->
+    <script>
+    function generatePdf(caseid, victimname, findings, desc,closedate,OfficerName,Juridiction,State) {
+            var patient_ver;
+            {% for i in mk %}
+                if(caseid.localeCompare('{{i.case_id}}') == 0)
+                {
+                    patient_ver='{{i.details}}';
+                }
+            {% endfor %}
+            var current = new Date();
+            var date = current.toLocaleString();
+            var docDefinition = {
+                watermark: {
+                    text: 'AUTO GENERATED CRIME REPORT',
+                    color: 'blue',
+                    opacity: 0.2,
+                    bold: true,
+                    italics: false
+                },
+                content: [{
+                        text: "CRIME REPORT",
+                        color: 'red',
+                        style: 'header',
+                        alignment: 'center'
+                    }, 
+                    {columns:
+                    [
+                        [{
+                        text: "\nCASE ID: " + caseid,
+                        style: 'sideheadings',
+                        alignment: 'left'
+                        }],
+                        [{
+                        text: "\nInvestigated By: " + OfficerName,
+                        style: 'sideheadings',
+                        alignment: 'right'
+                        }]
+
+                    ]}, 
+                    {
+                        text: "\nVictim Name: " + victimname,
+                        style: 'sideheadings',
+                        alignment: 'left',
+                        italics: true
+                    }, {
+                        text: "\n\n\nReport: ",
+                        style: 'sideheadings',
+                        alignment: 'center',
+                        color: 'red'
+                    }, {
+                        text: "\n\nVictim Version: ",
+                        style: 'download',
+                        alignment: 'left',
+                        italics: true
+                    }, {
+                        text: patient_ver,
+                        style: 'maincontent',
+                        alignment: 'left',
+                        italics: true
+                    }, {
+                        text: "\n\nCase Findings: ",
+                        style: 'download',
+                        alignment: 'left',
+                        italics: true
+                    }, {
+                        text: findings,
+                        style: 'maincontent',
+                        alignment: 'left',
+                        italics: true
+                    }, {
+                        text: "\n\nCase Description: ",
+                        style: 'download',
+                        alignment: 'left',
+                        italics: true
+                    }, {
+                        text: desc,
+                        style: 'maincontent',
+                        alignment: 'left',
+                        italics: true
+                    }, {
+                        text: "\n\nCase closed on:",
+                        style: 'doctor',
+                        alignment: 'left'
+                    }, {
+                        text: closedate+"\n\n",
+                        style: 'doctor',
+                        alignment: 'left'
+                    }, 
+                    {
+                        image:'data:image/jpeg;base64,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'
+                    },
+                    {
+                        text:"Venkatapally Anand\n(Commissioner of Police)",
+                        style: 'download',
+                        alignment: 'left'
+                    },
+                    {
+                        text:"\nPolice Station Details:",
+                        style: 'download',
+                        alignment: 'left'
+                    },
+                    {
+                        text:"\nUnder Juridiction of:"+Juridiction,
+                        style: 'download',
+                        alignment: 'left'
+                    },
+                    {
+                        text:"\nCrime Area:"+State,
+                        style: 'download',
+                        alignment: 'left'
+                    },
+                    {
+                        text: "\n\nDownloaded on: " + date,
+                        style: 'download1',
+                        alignment: 'left'
+                    }
+
+
+                ],
+                styles: {
+                    header: {
+                        fontSize: 24,
+                        bold: true,
+                        alignment: 'justify'
+                    },
+                    sideheadings: {
+                        fontSize: 16,
+                        bold: true,
+                    },
+                    maincontent: {
+                        fontSize: 18,
+                        bold: false,
+                        alignment: 'justify'
+                    },
+                    doctor: {
+                        fontSize: 16,
+                        bold: true,
+                        alignment: 'justify'
+                    },
+                    download: {
+                        fontSize: 14,
+                        bold: true,
+                        alignment: 'left'
+                    },
+                    download1: {
+                        fontSize: 10,
+                        bold: true,
+                        alignment: 'left'
+                    }
+
+
+                }
+            }
+            pdfMake.createPdf(docDefinition).download();
+        }
+    </script>
+</body>
+
+</html>
